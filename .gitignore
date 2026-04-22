@@ -6,6 +6,10 @@ __pycache__/
 venv/
 .ipynb_checkpoints/
 
+# Graph visualizations
+graph
+images/
+
 # C++ build artifacts
 build/
 *.o
