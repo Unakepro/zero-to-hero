@@ -1,25 +1,56 @@
 from micrograd import Value
 
 
-
-# Тест 1: forward работает
+# Forward
 a = Value(2.0)
 b = Value(3.0)
 c = a * b
-print(c)                  # Value(data=6.0, grad=0.0)
+assert c.data == 6.0
+print("ok: forward")
 
-# Тест 2: _backward это функция, не число
-print(type(c._backward))  # <class 'function'>
 
-# Тест 3: backward работает
-c.grad = 1.0
-c._backward()
-print(a.grad)             # 3.0
-print(b.grad)             # 2.0
+# Сhain: L = (a*b + c) * f
+a = Value(2.0)
+b = Value(-3.0)
+c = Value(10.0)
+f = Value(-2.0)
+L = (a * b + c) * f
+L.backward()
+assert a.grad == 6.0
+assert b.grad == -4.0
+print("ok: chain backward")
 
-# Тест 4: accumulation для a+a
-x = Value(3.0)
-y = x + x
-y.grad = 1.0
-y._backward()
-print(x.grad)             # 2.0  (если 1.0 — твой += не работает)
+
+# a + a — must accumulate
+a = Value(3.0)
+b = a + a
+b.backward()
+assert a.grad == 2.0
+print("ok: a + a")
+
+
+# a ** 2
+a = Value(3.0)
+b = a ** 2
+b.backward()
+assert a.grad == 6.0
+print("ok: a ** 2")
+
+
+# a / b
+a = Value(6.0)
+b = Value(2.0)
+c = a / b
+assert c.data == 3.0
+print("ok: a / b")
+
+
+# Scalar coercion: 2 * a + 1
+a = Value(3.0)
+b = 2 * a + 1
+b.backward()
+assert b.data == 7.0
+assert a.grad == 2.0
+print("ok: scalar coercion")
+
+
